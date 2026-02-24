@@ -1,0 +1,32 @@
+#!/bin/bash
+# prepare_molecules.job
+# Step 1: Generate stereoisomers and conformers from ChEMBL SMILES CSV.
+#
+# Usage:
+#   sbatch prepare_molecules.job \
+#     --sp /path/to/chembl.csv \
+#     --conf 20 \
+#     --out_dir /path/to/output
+
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=24
+#SBATCH --mem=59GB
+#SBATCH --time=4:00:00
+#SBATCH --account=qcb_640
+#SBATCH --partition=main
+
+module purge
+module load gcc/11.3.0
+module load python/3.9.12
+module load conda
+
+conda init bash
+source ~/.bashrc
+source activate project_1
+
+mkdir -p log
+
+python prepare_molecules.py "$@" \
+    1> log/prepare_molecules.$SLURM_JOB_ID.log \
+    2> log/prepare_molecules.$SLURM_JOB_ID.err

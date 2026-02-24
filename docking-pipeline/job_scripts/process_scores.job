@@ -1,0 +1,29 @@
+#!/bin/bash
+# process_scores.job
+# Step 4: Process raw docking scores — keep best score per molecule
+# and plot binding affinity vs pChEMBL value.
+#
+# Usage:
+#   sbatch process_scores.job
+
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --mem=59GB
+#SBATCH --time=2:00:00
+#SBATCH --account=qcb_640
+#SBATCH --partition=main
+
+module purge
+module load gcc/11.3.0
+module load python/3.9.12
+module load conda
+
+conda init bash
+source ~/.bashrc
+source activate project_1
+
+mkdir -p log
+
+python process_scores.py "$@" \
+    1> log/process_scores.$SLURM_JOB_ID.log \
+    2> log/process_scores.$SLURM_JOB_ID.err

@@ -1,0 +1,53 @@
+#!/bin/bash
+# run_docking.job
+# Step 3: Dock optimized molecules against a receptor pocket using QVina.
+# Runs in parallel across available CPUs.
+#
+# This single script replaces the previous per-conformation job scripts.
+# Pass the pocket and crystal ligand as arguments to target each conformation.
+#
+# Usage (run once per conformation):
+#   sbatch run_docking.job \
+#     --clp /path/to/crystal_ligand_6p7g.sdf \
+#     --p /path/to/pocket_6p7g.pdbqt \
+#     --conf 20 \
+#     --op docked_molecules/6p7g \
+#     --dsf docking_scores.csv
+#
+#   sbatch run_docking.job \
+#     --clp /path/to/crystal_ligand_4xv2.sdf \
+#     --p /path/to/pocket_4xv2.pdbqt \
+#     --conf 20 \
+#     --op docked_molecules/4xv2 \
+#     --dsf docking_scores.csv
+#
+#   sbatch run_docking.job \
+#     --clp /path/to/crystal_ligand_4e26.sdf \
+#     --p /path/to/pocket_4e26.pdbqt \
+#     --conf 20 \
+#     --op docked_molecules/4e26 \
+#     --dsf docking_scores.csv
+
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=36
+#SBATCH --mem=59GB
+#SBATCH --time=2:00:00
+#SBATCH --account=qcb_640
+#SBATCH --partition=main
+
+module purge
+module load gcc/11.3.0
+module load python/3.9.12
+module load conda
+
+conda init bash
+source ~/.bashrc
+source activate project_1
+
+mkdir -p log
+mkdir -p docked_molecules
+
+python run_docking.py "$@" \
+    1> log/run_docking.$SLURM_JOB_ID.log \
+    2> log/run_docking.$SLURM_JOB_ID.err
